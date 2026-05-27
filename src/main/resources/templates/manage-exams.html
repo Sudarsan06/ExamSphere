@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Manage Exams</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f4f6;
+            color: #111827;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1e3a8a, #2563eb);
+            color: white;
+            padding: 30px 40px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 34px;
+        }
+
+        .header p {
+            margin: 8px 0 0 0;
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        /* Create Exam Button */
+        .create-btn {
+            background: white;
+            color: #1e3a8a;
+            padding: 12px 24px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: bold;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+            transition: 0.3s;
+        }
+
+        .create-btn:hover {
+            transform: translateY(-2px);
+            background: #eff6ff;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1300px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        /* Create Exam Form */
+        .form-card {
+            display: none; /* Hidden by default */
+            background: white;
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            margin-bottom: 40px;
+        }
+
+        .form-card h2 {
+            margin-top: 0;
+            color: #1e3a8a;
+            margin-bottom: 25px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #374151;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: Arial, sans-serif;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            background: #1e3a8a;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .submit-btn:hover {
+            background: #1d4ed8;
+        }
+
+        /* Exams Section */
+        .section-title {
+            font-size: 28px;
+            color: #1e3a8a;
+            margin-bottom: 25px;
+        }
+
+        .exam-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+        }
+
+        .exam-card {
+            background: white;
+            padding: 28px;
+            border-radius: 20px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            transition: 0.3s;
+            position: relative;
+        }
+
+        .exam-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .course-badge {
+            display: inline-block;
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .exam-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: #111827;
+            margin-bottom: 12px;
+        }
+
+        .exam-description {
+            color: #6b7280;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            min-height: 60px;
+        }
+
+        .exam-meta {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            color: #374151;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .manage-btn {
+            display: inline-block;
+            width: 100%;
+            text-align: center;
+            background: #059669;
+            color: white;
+            padding: 12px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .manage-btn:hover {
+            background: #047857;
+        }
+
+        /* Empty State */
+        .empty-state {
+            background: white;
+            padding: 50px;
+            text-align: center;
+            border-radius: 20px;
+            color: #6b7280;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+        }
+
+        /* Footer Links */
+        .footer-links {
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .footer-links a {
+            color: #1e3a8a;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 0 10px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-top {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+        }
+    </style>
+
+    <script>
+        function toggleCreateForm() {
+            const form = document.getElementById("createExamForm");
+
+            if (form.style.display === "none" || form.style.display === "") {
+                form.style.display = "block";
+                form.scrollIntoView({ behavior: "smooth" });
+            } else {
+                form.style.display = "none";
+            }
+        }
+    </script>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+    <div class="header-top">
+        <div>
+            <h1>Manage Exams</h1>
+            <p>Create exams and manage questions for each exam.</p>
+        </div>
+
+        <a href="javascript:void(0)"
+           class="create-btn"
+           onclick="toggleCreateForm()">
+            + Create Exam
+        </a>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="container">
+
+    <!-- Hidden Create Exam Form -->
+    <div class="form-card" id="createExamForm">
+        <h2>Create New Exam</h2>
+
+        <form action="/admin/exams" method="post">
+            <div class="form-grid">
+
+                <div class="full-width">
+                    <label>Select Course</label>
+                    <select name="course" required>
+                        <option value="">-- Select Course --</option>
+                        <option th:each="course : ${courses}"
+                                th:value="${course.courseName}"
+                                th:text="${course.courseName}">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="full-width">
+                    <label>Exam Title</label>
+                    <input type="text" name="title" required>
+                </div>
+
+                <div class="full-width">
+                    <label>Description</label>
+                    <textarea name="description" required></textarea>
+                </div>
+
+                <div>
+                    <label>Duration (Minutes)</label>
+                    <input type="number" name="durationMinutes" required>
+                </div>
+
+                <div>
+                    <label>Total Marks</label>
+                    <input type="number" name="totalMarks" required>
+                </div>
+
+                <div class="full-width">
+                    <button type="submit" class="submit-btn">
+                        Create Exam
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Exams Section -->
+    <h2 class="section-title">Available Exams</h2>
+
+    <!-- Empty State -->
+    <div th:if="${#lists.isEmpty(exams)}" class="empty-state">
+        <h3>No exams created yet</h3>
+        <p>Click the "Create Exam" button to add your first exam.</p>
+    </div>
+
+    <!-- Exam Cards -->
+    <div th:if="${!#lists.isEmpty(exams)}" class="exam-grid">
+
+        <div class="exam-card" th:each="exam : ${exams}">
+            <div class="course-badge" th:text="${exam.course}"></div>
+
+            <div class="exam-title" th:text="${exam.title}"></div>
+
+            <div class="exam-description"
+                 th:text="${exam.description}">
+            </div>
+
+            <div class="exam-meta">
+                <span th:text="'⏱ ' + ${exam.durationMinutes} + ' mins'"></span>
+                <span th:text="'🏆 ' + ${exam.totalMarks} + ' marks'"></span>
+            </div>
+
+            <a th:href="@{'/admin/exams/' + ${exam.id} + '/questions'}"
+               class="manage-btn">
+                Manage Questions
+            </a>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="footer-links">
+        <a href="/admin-dashboard">Dashboard</a>
+        |
+        <a href="/login">Logout</a>
+    </div>
+
+</div>
+
+</body>
+</html>

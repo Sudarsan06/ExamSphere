@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+
+    <title>Edit Question</title>
+
+    <style>
+
+        body {
+            margin: 0;
+            font-family: Arial;
+            background: #f3f4f6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+            color: #1e3a8a;
+        }
+
+        label {
+            display: block;
+            margin-top: 20px;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input, textarea, select {
+
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            min-height: 120px;
+        }
+
+        button {
+
+            margin-top: 30px;
+            width: 100%;
+            padding: 14px;
+            background: #059669;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+    </style>
+
+</head>
+<body>
+
+<div class="container">
+
+    <h1>Edit Question</h1>
+
+    <form action="/admin/questions/update"
+          method="post">
+
+        <input type="hidden"
+               name="id"
+               th:value="${question.id}">
+
+        <label>Question</label>
+
+        <textarea name="questionText"
+                  required
+                  th:text="${question.questionText}">
+        </textarea>
+
+        <label>Option A</label>
+
+        <input type="text"
+               name="optionA"
+               th:value="${question.optionA}"
+               required>
+
+        <label>Option B</label>
+
+        <input type="text"
+               name="optionB"
+               th:value="${question.optionB}"
+               required>
+
+        <label>Option C</label>
+
+        <input type="text"
+               name="optionC"
+               th:value="${question.optionC}"
+               required>
+
+        <label>Option D</label>
+
+        <input type="text"
+               name="optionD"
+               th:value="${question.optionD}"
+               required>
+
+        <label>Correct Answer</label>
+
+        <select name="correctAnswer">
+
+            <option value="A"
+                    th:selected="${question.correctAnswer == 'A'}">
+                Option A
+            </option>
+
+            <option value="B"
+                    th:selected="${question.correctAnswer == 'B'}">
+                Option B
+            </option>
+
+            <option value="C"
+                    th:selected="${question.correctAnswer == 'C'}">
+                Option C
+            </option>
+
+            <option value="D"
+                    th:selected="${question.correctAnswer == 'D'}">
+                Option D
+            </option>
+
+        </select>
+
+        <label>Marks</label>
+
+        <input type="number"
+               name="marks"
+               th:value="${question.marks}"
+               required>
+
+        <button type="submit">
+            Update Question
+        </button>
+
+    </form>
+
+</div>
+
+</body>
+</html>

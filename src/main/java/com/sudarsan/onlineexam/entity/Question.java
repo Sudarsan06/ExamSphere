@@ -1,0 +1,110 @@
+package com.sudarsan.onlineexam.entity;
+
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "questions")
+public class Question {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private Long examId;
+
+    @Column(columnDefinition = "TEXT")
+    private String questionText;
+
+    private String optionA;
+    private String optionB;
+    private String optionC;
+    private String optionD;
+
+    private String correctAnswer;   // A, B, C, or D
+    private Integer marks;
+
+    public Question() {
+    }
+
+    public Question(Long examId, String questionText,
+                    String optionA, String optionB,
+                    String optionC, String optionD,
+                    String correctAnswer, Integer marks) {
+        this.examId = examId;
+        this.questionText = questionText;
+        this.optionA = optionA;
+        this.optionB = optionB;
+        this.optionC = optionC;
+        this.optionD = optionD;
+        this.correctAnswer = correctAnswer;
+        this.marks = marks;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public Long getExamId() {
+        return examId;
+    }
+
+    public void setExamId(Long examId) {
+        this.examId = examId;
+    }
+
+    public String getQuestionText() {
+        return questionText;
+    }
+
+    public void setQuestionText(String questionText) {
+        this.questionText = questionText;
+    }
+
+    public String getOptionA() {
+        return optionA;
+    }
+
+    public void setOptionA(String optionA) {
+        this.optionA = optionA;
+    }
+
+    public String getOptionB() {
+        return optionB;
+    }
+
+    public void setOptionB(String optionB) {
+        this.optionB = optionB;
+    }
+
+    public String getOptionC() {
+        return optionC;
+    }
+
+    public void setOptionC(String optionC) {
+        this.optionC = optionC;
+    }
+
+    public String getOptionD() {
+        return optionD;
+    }
+
+    public void setOptionD(String optionD) {
+        this.optionD = optionD;
+    }
+
+    public String getCorrectAnswer() {
+        return correctAnswer;
+    }
+
+    public void setCorrectAnswer(String correctAnswer) {
+        this.correctAnswer = correctAnswer;
+    }
+
+    public Integer getMarks() {
+        return marks;
+    }
+
+    public void setMarks(Integer marks) {
+        this.marks = marks;
+    }
+}

@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>ExamSphere – My Profile</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:          #e8f5ef;
+            --bg-card:     #ffffff;
+            --green:       #2dd882;
+            --green-dark:  #1ab866;
+            --green-muted: #d0f0e0;
+            --ink:         #0d0d0d;
+            --ink-soft:    #2e2e2e;
+            --muted:       #6b7a72;
+            --border:      #c8dfd4;
+            --error:       #d93025;
+            --error-bg:    #fff0ef;
+            --success-bg:  #f0fdf4;
+            --success-col: #166534;
+            --radius:      13px;
+            --nav-h:       68px;
+        }
+
+        html, body { min-height: 100%; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            background-image: radial-gradient(circle, rgba(0,0,0,0.055) 1px, transparent 1px);
+            background-size: 28px 28px;
+            background-color: var(--bg);
+            color: var(--ink);
+        }
+
+        /* ══════════ NAV ══════════ */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            height: var(--nav-h);
+            background: rgba(232,245,239,0.88);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 32px;
+            gap: 16px;
+        }
+
+        .nav-back {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--muted);
+            text-decoration: none;
+            padding: 7px 14px;
+            border-radius: 100px;
+            border: 1.5px solid var(--border);
+            background: var(--bg-card);
+            transition: color 0.15s, border-color 0.15s;
+        }
+
+        .nav-back svg { width: 14px; height: 14px; }
+        .nav-back:hover { color: var(--ink); border-color: var(--ink); }
+
+        .nav-logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 19px;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            color: var(--ink);
+            text-decoration: none;
+            margin-right: auto;
+        }
+
+        .nav-logo .g { color: var(--green-dark); }
+
+        .nav-logout {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--error);
+            text-decoration: none;
+            padding: 7px 14px;
+            border-radius: 100px;
+            border: 1.5px solid rgba(217,48,37,0.25);
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .nav-logout:hover { background: var(--error); color: #fff; }
+
+        /* ══════════ PAGE ══════════ */
+        .page {
+            max-width: 780px;
+            margin: 0 auto;
+            padding: 40px 24px 72px;
+        }
+
+        /* ══════════ PROFILE HERO ══════════ */
+        .profile-hero {
+            background: var(--ink);
+            border-radius: 20px;
+            padding: 32px 36px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+            animation: fadeUp 0.45s cubic-bezier(0.22,1,0.36,1) both;
+        }
+
+        .profile-hero::before {
+            content: '';
+            position: absolute;
+            right: -40px; top: -40px;
+            width: 240px; height: 240px;
+            background: radial-gradient(circle, rgba(45,216,130,0.16) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .avatar-ring {
+            width: 72px; height: 72px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--green-dark), var(--green));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 0 0 4px rgba(45,216,130,0.2);
+            position: relative;
+            z-index: 1;
+        }
+
+        .avatar-ring svg { width: 34px; height: 34px; color: #fff; }
+
+        .hero-info { position: relative; z-index: 1; }
+
+        .hero-label {
+            font-size: 11.5px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.4);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 4px;
+        }
+
+        .hero-name {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 24px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.03em;
+            margin-bottom: 10px;
+            th-text: "${user.username}";
+        }
+
+        .hero-badges {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-green {
+            background: rgba(45,216,130,0.15);
+            color: var(--green);
+            border: 1px solid rgba(45,216,130,0.25);
+        }
+
+        .badge-muted {
+            background: rgba(255,255,255,0.07);
+            color: rgba(255,255,255,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* ══════════ ALERTS ══════════ */
+        .alert {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 13px 16px;
+            border-radius: var(--radius);
+            font-size: 13.5px;
+            font-weight: 500;
+            margin-bottom: 22px;
+            animation: fadeUp 0.4s both;
+        }
+
+        .alert svg { width: 17px; height: 17px; flex-shrink: 0; }
+
+        .alert-success {
+            background: var(--success-bg);
+            color: var(--success-col);
+            border: 1px solid rgba(22,101,52,0.18);
+        }
+
+        /* ══════════ CARD ══════════ */
+        .card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            box-shadow: 0 3px 20px rgba(0,0,0,0.06);
+            padding: 32px;
+            animation: fadeUp 0.5s cubic-bezier(0.22,1,0.36,1) 0.07s both;
+        }
+
+        @keyframes fadeUp {
+            from { opacity:0; transform:translateY(18px); }
+            to   { opacity:1; transform:translateY(0); }
+        }
+
+        .card-section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 18px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* ══════════ FORM ══════════ */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            margin-bottom: 18px;
+        }
+
+        @media (max-width: 560px) {
+            .form-row { grid-template-columns: 1fr; }
+        }
+
+        .form-group { display: flex; flex-direction: column; gap: 7px; }
+        .form-group.full { grid-column: 1 / -1; }
+
+        label {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--ink-soft);
+            letter-spacing: 0.02em;
+        }
+
+        .input-wrap { position: relative; }
+
+        .input-icon {
+            position: absolute;
+            left: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px; height: 16px;
+            color: #9ab5a6;
+            pointer-events: none;
+        }
+
+        .textarea-icon {
+            position: absolute;
+            left: 13px;
+            top: 14px;
+            width: 16px; height: 16px;
+            color: #9ab5a6;
+            pointer-events: none;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        textarea {
+            width: 100%;
+            padding: 11px 14px 11px 40px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            color: var(--ink);
+            background: #fff;
+            outline: none;
+            transition: border-color 0.18s, box-shadow 0.18s;
+        }
+
+        input::placeholder, textarea::placeholder { color: #b0c8bc; }
+
+        input:focus, textarea:focus {
+            border-color: var(--green-dark);
+            box-shadow: 0 0 0 4px rgba(26,184,102,0.11);
+        }
+
+        input:disabled {
+            background: var(--bg);
+            color: var(--muted);
+            cursor: not-allowed;
+            border-color: var(--border);
+        }
+
+        textarea {
+            min-height: 96px;
+            resize: vertical;
+            padding-top: 11px;
+        }
+
+        .field-hint {
+            font-size: 11.5px;
+            color: var(--muted);
+        }
+
+        /* ══════════ ACTIONS ══════════ */
+        .actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 28px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 11px 22px;
+            border: none;
+            border-radius: 100px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.14s, box-shadow 0.18s, background 0.18s;
+            letter-spacing: 0.01em;
+        }
+
+        .btn svg { width: 15px; height: 15px; }
+
+        .btn:hover { transform: translateY(-2px); }
+        .btn:active { transform: translateY(0); }
+
+        .btn-save {
+            background: var(--ink);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.16);
+        }
+
+        .btn-save:hover { background: #1a1a1a; box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
+
+        .btn-refresh {
+            background: var(--bg);
+            color: var(--ink-soft);
+            border: 1.5px solid var(--border);
+            box-shadow: none;
+        }
+
+        .btn-refresh:hover { border-color: var(--ink); background: var(--bg); }
+
+        /* Spacer between save and deactivate */
+        .actions-spacer { flex: 1; }
+
+        /* ══════════ DANGER ZONE ══════════ */
+        .danger-zone {
+            margin-top: 24px;
+            border: 1.5px solid rgba(217,48,37,0.2);
+            border-radius: 16px;
+            padding: 22px 26px;
+            background: #fffafa;
+            animation: fadeUp 0.5s cubic-bezier(0.22,1,0.36,1) 0.12s both;
+        }
+
+        .danger-head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .danger-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--error);
+        }
+
+        .danger-body {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        .btn-deactivate {
+            background: transparent;
+            color: var(--error);
+            border: 1.5px solid rgba(217,48,37,0.35);
+            box-shadow: none;
+        }
+
+        .btn-deactivate:hover {
+            background: var(--error);
+            color: #fff;
+            border-color: var(--error);
+            box-shadow: 0 6px 16px rgba(217,48,37,0.25);
+        }
+    </style>
+</head>
+<body>
+
+<!-- ══════ NAV ══════ -->
+<nav>
+    <a th:href="@{/student/dashboard}" class="nav-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        Dashboard
+    </a>
+
+    <a href="/" class="nav-logo" style="margin-left:16px;">Exam<span class="g">Sphere</span></a>
+
+    <a href="/login" class="nav-logout">Logout</a>
+</nav>
+
+<!-- ══════ PAGE ══════ -->
+<div class="page">
+
+    <!-- PROFILE HERO -->
+    <div class="profile-hero">
+        <div class="avatar-ring">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+            </svg>
+        </div>
+        <div class="hero-info">
+            <div class="hero-label">Student Profile</div>
+            <div class="hero-name" style="font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:800;color:#fff;letter-spacing:-0.03em;margin-bottom:10px;">
+                <span th:text="${user.username}">Username</span>
+            </div>
+            <div class="hero-badges">
+                <span class="badge badge-green">● Active</span>
+                <span class="badge badge-muted" th:text="${user.id != null} ? 'ID #' + ${user.id} : 'Student'">Student</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUCCESS ALERT -->
+    <div th:if="${success}" class="alert alert-success">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        <span th:text="${success}">Profile updated successfully.</span>
+    </div>
+
+    <!-- PROFILE FORM CARD -->
+    <div class="card">
+        <div class="card-section-title">Personal Information</div>
+
+        <form action="/student/profile" method="post">
+            <input type="hidden" name="id" th:value="${user.id}">
+
+            <div class="form-row">
+
+                <!-- Date of Birth -->
+                <div class="form-group">
+                    <label for="dob">Date of Birth</label>
+                    <div class="input-wrap">
+                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                            <line x1="16" y1="2" x2="16" y2="6"/>
+                            <line x1="8" y1="2" x2="8" y2="6"/>
+                            <line x1="3" y1="10" x2="21" y2="10"/>
+                        </svg>
+                        <input type="date" id="dob" name="dateOfBirth"
+                               th:value="${user.dateOfBirth}"
+                               th:disabled="${user.dateOfBirth != null}">
+                    </div>
+                    <span class="field-hint" th:if="${user.dateOfBirth != null}">Date of birth cannot be changed</span>
+                </div>
+
+                <!-- Mobile -->
+                <div class="form-group">
+                    <label for="mobile">Mobile Number</label>
+                    <div class="input-wrap">
+                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+                            <line x1="12" y1="18" x2="12.01" y2="18"/>
+                        </svg>
+                        <input type="text" id="mobile" name="mobileNumber"
+                               th:value="${user.mobileNumber}"
+                               placeholder="e.g. +91 98765 43210">
+                    </div>
+                </div>
+
+                <!-- Hobbies -->
+                <div class="form-group">
+                    <label for="hobbies">Hobbies</label>
+                    <div class="input-wrap">
+                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                        </svg>
+                        <input type="text" id="hobbies" name="hobbies"
+                               th:value="${user.hobbies}"
+                               placeholder="e.g. Reading, Cricket, Coding">
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Address — full width -->
+            <div class="form-group full">
+                <label for="address">Address</label>
+                <div class="input-wrap">
+                    <svg class="textarea-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                        <circle cx="12" cy="10" r="3"/>
+                    </svg>
+                    <textarea id="address" name="address"
+                              th:text="${user.address}"
+                              placeholder="Enter your full address"
+                              style="padding-left:40px;"></textarea>
+                </div>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="actions">
+                <button type="submit" class="btn btn-save">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    Save Changes
+                </button>
+
+                <a th:href="@{/student/profile(username=${user.username})}" class="btn btn-refresh" style="text-decoration:none;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="23 4 23 10 17 10"/>
+                        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+                    </svg>
+                    Refresh
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- DANGER ZONE -->
+    <div class="danger-zone">
+        <div class="danger-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;color:var(--error)">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            <span class="danger-title">Danger Zone</span>
+        </div>
+        <p class="danger-body">
+            Deactivating your account will immediately disable exam access. You will need to contact an administrator to reactivate it.
+        </p>
+        <form action="/student/deactivate" method="post">
+            <input type="hidden" name="id" th:value="${user.id}">
+            <button type="submit" class="btn btn-deactivate"
+                    onclick="return confirm('Are you sure you want to deactivate your account? You will lose exam access immediately.');">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+                </svg>
+                Deactivate Account
+            </button>
+        </form>
+    </div>
+
+</div>
+</body>
+</html>

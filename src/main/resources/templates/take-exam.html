@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Take Exam</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f4f6;
+        }
+
+        .header {
+            background: #1e3a8a;
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+        }
+
+        .timer {
+            margin-top: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #facc15;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .question-card {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        h3 {
+            margin-top: 0;
+        }
+
+        label {
+            display: block;
+            margin: 8px 0;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: #059669;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .submit-btn:hover {
+            background: #047857;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1 th:text="${exam.title}"></h1>
+    <p th:text="${exam.description}"></p>
+
+    <div class="timer">
+        Time Remaining: <span id="timer"></span>
+    </div>
+</div>
+
+<div class="container">
+	<form th:action="@{'/student/exam/' + ${exam.id} + '/submit'}"
+	      method="post">
+
+        <div th:each="question, stat : ${questions}" class="question-card">
+            <h3 th:text="'Question ' + ${stat.count}"></h3>
+            <p th:text="${question.questionText}"></p>
+
+            <label>
+                <input type="radio"
+                       th:name="'q' + ${question.id}"
+                       value="A">
+                <span th:text="${question.optionA}"></span>
+            </label>
+
+            <label>
+                <input type="radio"
+                       th:name="'q' + ${question.id}"
+                       value="B">
+                <span th:text="${question.optionB}"></span>
+            </label>
+
+            <label>
+                <input type="radio"
+                       th:name="'q' + ${question.id}"
+                       value="C">
+                <span th:text="${question.optionC}"></span>
+            </label>
+
+            <label>
+                <input type="radio"
+                       th:name="'q' + ${question.id}"
+                       value="D">
+                <span th:text="${question.optionD}"></span>
+            </label>
+        </div>
+
+        <button type="submit" class="submit-btn">
+            Submit Exam
+        </button>
+    </form>
+</div>
+
+<script th:inline="javascript">
+
+   let totalSeconds = parseInt('[[${exam.durationMinutes}]]') * 60;
+
+    function updateTimer() {
+
+        let minutes = Math.floor(totalSeconds / 60);
+        let seconds = totalSeconds % 60;
+
+        document.getElementById("timer").textContent =
+            String(minutes).padStart(2, '0') + ":" +
+            String(seconds).padStart(2, '0');
+
+        if (totalSeconds <= 0) {
+            alert("Time is up! Submitting exam.");
+
+            document.querySelector("form").submit();
+            return;
+        }
+
+        totalSeconds--;
+    }
+
+    updateTimer();
+
+    setInterval(updateTimer, 1000);
+
+</script>
+</body>
+</html>

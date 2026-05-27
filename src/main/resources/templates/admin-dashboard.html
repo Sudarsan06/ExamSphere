@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Admin Dashboard</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f4f6;
+            color: #111827;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3a8a, #2563eb);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 38px;
+        }
+
+        .header p {
+            margin-top: 10px;
+            font-size: 18px;
+            opacity: 0.95;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            background: white;
+            padding: 35px 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            text-decoration: none;
+            color: inherit;
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.12);
+        }
+
+        .icon {
+            font-size: 42px;
+            margin-bottom: 20px;
+        }
+
+        .card h3 {
+            margin: 0 0 10px 0;
+            font-size: 24px;
+            color: #1e3a8a;
+        }
+
+        .card p {
+            margin: 0;
+            color: #6b7280;
+            line-height: 1.6;
+        }
+
+        .logout-card h3 {
+            color: #dc2626;
+        }
+
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 30px;
+            }
+
+            .header p {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>Admin Dashboard</h1>
+    <p>Manage courses, exams, students and results.</p>
+</div>
+
+<div class="container">
+    <div class="cards">
+
+        <a href="/admin/courses" class="card">
+            <div class="icon">📚</div>
+            <h3>Manage Courses</h3>
+            <p>Create and maintain course information dynamically.</p>
+        </a>
+
+        <a href="/admin/exams" class="card">
+            <div class="icon">📝</div>
+            <h3>Manage Exams</h3>
+            <p>Create exams and manage questions for each exam.</p>
+        </a>
+
+        <a href="/admin/students" class="card">
+            <div class="icon">👨‍🎓</div>
+            <h3>View Students</h3>
+            <p>Monitor student profiles, status and enrolled courses.</p>
+        </a>
+
+        <a href="#" class="card">
+            <div class="icon">📊</div>
+            <h3>View Results</h3>
+            <p>Analyze student performance and exam results.</p>
+        </a>
+
+        <a href="/login" class="card logout-card">
+            <div class="icon">🚪</div>
+            <h3>Logout</h3>
+            <p>Return to the login page securely.</p>
+        </a>
+
+    </div>
+
+    <div class="footer">
+        ExamSphere - Admin Panel
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>View Students</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            margin: 0;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        h1 {
+            color: #1e3a8a;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 14px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+        }
+
+        th {
+            background: #f9fafb;
+        }
+
+        .status-active {
+            color: #059669;
+            font-weight: bold;
+        }
+
+        .status-inactive {
+            color: #dc2626;
+            font-weight: bold;
+        }
+
+        .reactivate-btn {
+            background: #059669;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .reactivate-btn:hover {
+            background: #047857;
+        }
+
+        .active-label {
+            color: #6b7280;
+            font-style: italic;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #1e3a8a;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .empty {
+            text-align: center;
+            color: #6b7280;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Registered Students</h1>
+
+    <div class="card">
+        <table>
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Course</th>
+                    <th>Mobile Number</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr th:if="${#lists.isEmpty(students)}">
+                    <td colspan="6" class="empty">
+                        No students found.
+                    </td>
+                </tr>
+
+                <tr th:each="student : ${students}">
+                    <td th:text="${student.username}"></td>
+                    <td th:text="${student.email}"></td>
+                    <td th:text="${student.course}"></td>
+                    <td th:text="${student.mobileNumber}"></td>
+
+                    <td>
+                        <span th:if="${student.status == 'ACTIVE'}"
+                              class="status-active">ACTIVE</span>
+                        <span th:if="${student.status == 'INACTIVE'}"
+                              class="status-inactive">INACTIVE</span>
+                    </td>
+
+                    <td>
+                        <!-- Show Reactivate button only for INACTIVE users -->
+                        <form th:if="${student.status == 'INACTIVE'}"
+                              action="/admin/students/reactivate"
+                              method="post"
+                              style="display:inline;">
+                            <input type="hidden"
+                                   name="id"
+                                   th:value="${student.id}">
+                            <button type="submit"
+                                    class="reactivate-btn">
+                                Reactivate
+                            </button>
+                        </form>
+
+                        <!-- Show label if already active -->
+                        <span th:if="${student.status == 'ACTIVE'}"
+                              class="active-label">
+                            Already Active
+                        </span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <a href="/login" class="back-link">Logout</a>
+</div>
+
+</body>
+</html>

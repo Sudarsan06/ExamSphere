@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Manage Questions</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f4f6;
+            color: #111827;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: white;
+            padding: 40px;
+        }
+
+        .hero h1 {
+            margin: 0 0 10px 0;
+            font-size: 34px;
+        }
+
+        .hero p {
+            margin: 0;
+            font-size: 17px;
+            opacity: 0.95;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 999px;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            gap: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #059669;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 18px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #059669;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #047857;
+        }
+
+        .question-card {
+            background: #f9fafb;
+            border-left: 5px solid #059669;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .question-card h3 {
+            margin-top: 0;
+            color: #111827;
+        }
+
+        .options {
+            margin: 15px 0;
+            padding-left: 20px;
+            color: #374151;
+        }
+
+        .meta {
+            margin-top: 12px;
+            font-size: 14px;
+            color: #6b7280;
+            font-weight: bold;
+        }
+
+        .empty {
+            text-align: center;
+            color: #6b7280;
+            padding: 40px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 25px;
+            color: #059669;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        @media (max-width: 1000px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .hero h1 {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="hero">
+    <h1 th:text="${exam.title}"></h1>
+    <p th:text="${exam.description}"></p>
+    <div class="badge" th:text="${exam.course}"></div>
+</div>
+
+<div class="container">
+    <div class="layout">
+
+        <!-- Add Question Form -->
+        <div class="card">
+            <h2>Add New Question</h2>
+
+            <form th:action="@{'/admin/exams/' + ${exam.id} + '/questions'}"
+                  method="post">
+
+                <label>Question Text</label>
+                <textarea name="questionText" required></textarea>
+
+                <label>Option A</label>
+                <input type="text" name="optionA" required>
+
+                <label>Option B</label>
+                <input type="text" name="optionB" required>
+
+                <label>Option C</label>
+                <input type="text" name="optionC" required>
+
+                <label>Option D</label>
+                <input type="text" name="optionD" required>
+
+                <label>Correct Answer</label>
+                <select name="correctAnswer" required>
+                    <option value="A">Option A</option>
+                    <option value="B">Option B</option>
+                    <option value="C">Option C</option>
+                    <option value="D">Option D</option>
+                </select>
+
+                <label>Marks</label>
+                <input type="number" name="marks" value="1" required>
+
+                <button type="submit">Add Question</button>
+            </form>
+
+            <a href="/admin/exams" class="back-link">
+                ← Back to Manage Exams
+            </a>
+        </div>
+
+        <!-- Existing Questions -->
+        <div class="card">
+            <h2>Existing Questions</h2>
+
+            <div th:if="${#lists.isEmpty(questions)}" class="empty">
+                No questions added yet.
+            </div>
+
+            <div th:each="question, stat : ${questions}"
+                 class="question-card">
+
+                <h3 th:text="'Question ' + ${stat.count}"></h3>
+
+                <p th:text="${question.questionText}"></p>
+
+                <ul class="options">
+                    <li th:text="'A. ' + ${question.optionA}"></li>
+                    <li th:text="'B. ' + ${question.optionB}"></li>
+                    <li th:text="'C. ' + ${question.optionC}"></li>
+                    <li th:text="'D. ' + ${question.optionD}"></li>
+                </ul>
+
+                <div class="meta">
+                    Correct Answer:
+                    <span th:text="${question.correctAnswer}"></span>
+                    |
+                    Marks:
+                    <span th:text="${question.marks}"></span>
+                </div>
+				<div style="margin-top:20px; display:flex; gap:10px;">
+
+				    <!-- EDIT BUTTON -->
+				    <a th:href="@{'/admin/questions/edit/' + ${question.id}}"
+				       style="
+				            background:#2563eb;
+				            color:white;
+				            padding:10px 16px;
+				            border-radius:8px;
+				            text-decoration:none;
+				            font-weight:bold;
+				       ">
+
+				        ✏ Edit
+
+				    </a>
+
+				    <!-- DELETE BUTTON -->
+				    <a th:href="@{'/admin/questions/delete/' + ${question.id}}"
+				       onclick="return confirm('Delete this question?')"
+				       style="
+				            background:#dc2626;
+				            color:white;
+				            padding:10px 16px;
+				            border-radius:8px;
+				            text-decoration:none;
+				            font-weight:bold;
+				       ">
+
+				        🗑 Delete
+
+				    </a>
+
+				</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>
