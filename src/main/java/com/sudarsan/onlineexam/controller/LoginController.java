@@ -1,6 +1,7 @@
 package com.sudarsan.onlineexam.controller;
 
 import java.util.List; 
+import org.springframework.beans.factory.annotation.Value;
 import java.util.Optional;
 import java.util.Random;
 
@@ -27,6 +28,7 @@ import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class LoginController {
+	
 
     private final UserRepository userRepository;
 
@@ -36,6 +38,9 @@ public class LoginController {
     private final ExamRepository examRepository;
 
     private final PasswordEncoder passwordEncoder;
+    
+    @Value("${brevo.api.key}")
+    private String brevoApiKey;
 
     public LoginController(
             UserRepository userRepository,
@@ -545,16 +550,11 @@ public class LoginController {
 
     private void sendOtpEmail(String email, String otp, String username) {
         try {
-        	String apiKey = System.getenv("BREVO_API_KEY");
-        	if (apiKey == null || apiKey.isEmpty()) {
-        	    throw new RuntimeException("BREVO_API_KEY environment variable not set");
-        	}
-            
             String jsonBody = "{"
                 + "\"sender\":{\"name\":\"ExamSphere\",\"email\":\"onlineexaminationportal1@gmail.com\"},"
                 + "\"to\":[{\"email\":\"" + email + "\",\"name\":\"" + username + "\"}],"
                 + "\"subject\":\"ExamSphere - OTP Verification\","
-                + "\"textContent\":\"Dear " + username + ",\\n\\nYour OTP is: " + otp 
+                + "\"textContent\":\"Dear " + username + ",\\n\\nYour OTP is: " + otp
                 + "\\n\\nThis OTP is valid for 5 minutes.\\n\\nRegards,\\nExamSphere\""
                 + "}";
 
@@ -562,7 +562,7 @@ public class LoginController {
             java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
                 .uri(java.net.URI.create("https://api.brevo.com/v3/smtp/email"))
                 .header("Content-Type", "application/json")
-                .header("api-key", apiKey)
+                .header("api-key", brevoApiKey)
                 .POST(java.net.http.HttpRequest.BodyPublishers.ofString(jsonBody))
                 .build();
 
@@ -573,7 +573,7 @@ public class LoginController {
                 throw new RuntimeException("Brevo API error status=" + response.statusCode() + " body=" + response.body());
             }
         } catch (Exception e) {
-        	throw new RuntimeException("Failed to send OTP email details: " + e.getMessage(), e);
+            throw new RuntimeException("Failed to send OTP email details: " + e.getMessage(), e);
         }
     }
 }
