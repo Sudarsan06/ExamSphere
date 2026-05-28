@@ -546,6 +546,9 @@ public class LoginController {
     private void sendOtpEmail(String email, String otp, String username) {
         try {
         	String apiKey = System.getenv("BREVO_API_KEY");
+        	if (apiKey == null || apiKey.isEmpty()) {
+        	    throw new RuntimeException("BREVO_API_KEY environment variable not set");
+        	}
             
             String jsonBody = "{"
                 + "\"sender\":{\"name\":\"ExamSphere\",\"email\":\"onlineexaminationportal1@gmail.com\"},"
@@ -567,11 +570,10 @@ public class LoginController {
                 .send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() != 201) {
-                throw new RuntimeException("Brevo API error: " + response.body());
+                throw new RuntimeException("Brevo API error status=" + response.statusCode() + " body=" + response.body());
             }
-
         } catch (Exception e) {
-            throw new RuntimeException("Failed to send OTP email: " + e.getMessage());
+        	throw new RuntimeException("Failed to send OTP email details: " + e.getMessage(), e);
         }
     }
 }
