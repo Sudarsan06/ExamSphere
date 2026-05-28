@@ -1,11 +1,8 @@
 package com.sudarsan.onlineexam.controller;
 
-import java.util.List;
+import java.util.List; 
 import java.util.Optional;
 import java.util.Random;
-
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -33,7 +30,6 @@ public class LoginController {
 
     private final UserRepository userRepository;
 
-    private final JavaMailSender mailSender;
 
     private final CourseRepository courseRepository;
 
@@ -43,14 +39,11 @@ public class LoginController {
 
     public LoginController(
             UserRepository userRepository,
-            JavaMailSender mailSender,
             CourseRepository courseRepository,
             ExamRepository examRepository,
             PasswordEncoder passwordEncoder) {
 
         this.userRepository = userRepository;
-
-        this.mailSender = mailSender;
 
         this.courseRepository = courseRepository;
 
@@ -550,40 +543,36 @@ public class LoginController {
 
  // SEND OTP EMAIL
 
- private void sendOtpEmail(
-         String email,
-         String otp,
-         String username) {
+    private void sendOtpEmail(String email, String otp, String username) {
+        try {
+        	String apiKey = System.getenv("BREVO_API_KEY");
+            
+            String jsonBody = "{"
+                + "\"sender\":{\"name\":\"ExamSphere\",\"email\":\"onlineexaminationportal1@gmail.com\"},"
+                + "\"to\":[{\"email\":\"" + email + "\",\"name\":\"" + username + "\"}],"
+                + "\"subject\":\"ExamSphere - OTP Verification\","
+                + "\"textContent\":\"Dear " + username + ",\\n\\nYour OTP is: " + otp 
+                + "\\n\\nThis OTP is valid for 5 minutes.\\n\\nRegards,\\nExamSphere\""
+                + "}";
 
-     SimpleMailMessage message =
-             new SimpleMailMessage();
+            java.net.http.HttpClient client = java.net.http.HttpClient.newHttpClient();
+            java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
+                .uri(java.net.URI.create("https://api.brevo.com/v3/smtp/email"))
+                .header("Content-Type", "application/json")
+                .header("api-key", apiKey)
+                .POST(java.net.http.HttpRequest.BodyPublishers.ofString(jsonBody))
+                .build();
 
-     message.setTo(email);
+            java.net.http.HttpResponse<String> response = client
+                .send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
 
-     message.setSubject(
-             "ExamSphere - OTP Verification"
-     );
+            if (response.statusCode() != 201) {
+                throw new RuntimeException("Brevo API error: " + response.body());
+            }
 
-     message.setText(
-
-             "Dear " + username + ",\n\n"
-
-             + "Your OTP is: "
-             + otp
-
-             + "\n\n"
-
-             + "This OTP is valid for 5 minutes."
-
-             + "\n\n"
-
-             + "Regards,\n"
-             + "ExamSphere"
-
-     );
-
-     mailSender.send(message);
- }
-
- }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to send OTP email: " + e.getMessage());
+        }
+    }
+}
 
