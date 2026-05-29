@@ -1,375 +1,894 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Manage Exams</title>
+    <title>ExamSphere – Manage Exams</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
-        * {
-            box-sizing: border-box;
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:         #e8f5ef;
+            --bg-card:    #ffffff;
+            --green:      #2dd882;
+            --green-dark: #1ab866;
+            --ink:        #0d0d0d;
+            --ink-soft:   #2e2e2e;
+            --muted:      #6b7a72;
+            --border:     #c8dfd4;
+            --error:      #d93025;
+            --error-bg:   #fff0ef;
+            --radius:     14px;
+            --nav-h:      68px;
         }
+
+        html, body { min-height: 100%; }
 
         body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f3f4f6;
-            color: #111827;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            background-image: radial-gradient(circle, rgba(0,0,0,0.055) 1px, transparent 1px);
+            background-size: 28px 28px;
+            background-color: var(--bg);
+            color: var(--ink);
         }
 
-        /* Header */
-        .header {
-            background: linear-gradient(135deg, #1e3a8a, #2563eb);
-            color: white;
-            padding: 30px 40px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-
-        .header-top {
+        /* ══════════ NAV ══════════ */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            height: var(--nav-h);
+            background: rgba(232,245,239,0.88);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border);
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
+            padding: 0 36px;
+            gap: 14px;
         }
 
-        .header h1 {
-            margin: 0;
-            font-size: 34px;
-        }
-
-        .header p {
-            margin: 8px 0 0 0;
-            opacity: 0.9;
-            font-size: 16px;
-        }
-
-        /* Create Exam Button */
-        .create-btn {
-            background: white;
-            color: #1e3a8a;
-            padding: 12px 24px;
-            border-radius: 10px;
+        .nav-back {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--muted);
             text-decoration: none;
-            font-weight: bold;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.12);
-            transition: 0.3s;
+            padding: 7px 14px;
+            border-radius: 100px;
+            border: 1.5px solid var(--border);
+            background: var(--bg-card);
+            transition: color 0.15s, border-color 0.15s;
+            flex-shrink: 0;
         }
 
-        .create-btn:hover {
-            transform: translateY(-2px);
-            background: #eff6ff;
+        .nav-back svg { width: 14px; height: 14px; }
+        .nav-back:hover { color: var(--ink); border-color: var(--ink); }
+
+        .nav-logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 19px;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            color: var(--ink);
+            text-decoration: none;
+            margin-right: auto;
         }
 
-        /* Main Container */
-        .container {
-            max-width: 1300px;
-            margin: 40px auto;
-            padding: 0 20px;
+        .nav-logo .g { color: var(--green-dark); }
+
+        .nav-pill {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--ink);
+            color: #fff;
+            font-size: 11.5px;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 5px 14px;
+            border-radius: 100px;
         }
 
-        /* Create Exam Form */
-        .form-card {
-            display: none; /* Hidden by default */
-            background: white;
-            padding: 35px;
+        .nav-pill-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--green);
+            animation: blink 2s ease-in-out infinite;
+        }
+
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+        .nav-logout {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--error);
+            text-decoration: none;
+            padding: 7px 16px;
+            border-radius: 100px;
+            border: 1.5px solid rgba(217,48,37,0.25);
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .nav-logout:hover { background: var(--error); color: #fff; }
+
+        /* ══════════ PAGE ══════════ */
+        .page {
+            max-width: 1160px;
+            margin: 0 auto;
+            padding: 40px 28px 72px;
+        }
+
+        @keyframes fadeUp {
+            from { opacity:0; transform:translateY(16px); }
+            to   { opacity:1; transform:translateY(0); }
+        }
+
+        /* ══════════ PAGE HEADER ══════════ */
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 28px;
+            animation: fadeUp 0.45s cubic-bezier(0.22,1,0.36,1) both;
+        }
+
+        .page-eyebrow {
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+            margin-bottom: 4px;
+        }
+
+        .page-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--ink);
+            letter-spacing: -0.03em;
+        }
+
+        .header-actions { display: flex; gap: 10px; align-items: center; }
+
+        .count-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--bg-card);
+            border: 1.5px solid var(--border);
+            color: var(--ink);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 7px 16px;
+            border-radius: 100px;
+        }
+
+        .count-badge span { color: var(--green-dark); }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 100px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 13.5px;
+            font-weight: 600;
+            cursor: pointer;
+            letter-spacing: 0.01em;
+            transition: transform 0.14s, box-shadow 0.18s, background 0.18s;
+            text-decoration: none;
+        }
+
+        .btn svg { width: 15px; height: 15px; }
+        .btn:hover { transform: translateY(-2px); }
+        .btn:active { transform: translateY(0); }
+
+        .btn-primary {
+            background: var(--ink);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.16);
+        }
+
+        .btn-primary:hover { background: #1a1a1a; box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
+
+        .btn-ghost {
+            background: var(--bg-card);
+            color: var(--ink-soft);
+            border: 1.5px solid var(--border);
+        }
+
+        .btn-ghost:hover { border-color: var(--ink); }
+
+        /* ══════════ SLIDE-DOWN FORM PANEL ══════════ */
+        .form-panel {
+            background: var(--bg-card);
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            margin-bottom: 40px;
+            border: 1px solid var(--border);
+            box-shadow: 0 3px 20px rgba(0,0,0,0.06);
+            margin-bottom: 28px;
+            overflow: hidden;
+            animation: fadeUp 0.5s cubic-bezier(0.22,1,0.36,1) both;
+
+            /* Collapse state */
+            max-height: 0;
+            opacity: 0;
+            transition: max-height 0.4s cubic-bezier(0.22,1,0.36,1),
+                        opacity 0.3s ease,
+                        margin-bottom 0.3s ease;
         }
 
-        .form-card h2 {
-            margin-top: 0;
-            color: #1e3a8a;
-            margin-bottom: 25px;
+        .form-panel.open {
+            max-height: 700px;
+            opacity: 1;
+            margin-bottom: 28px;
         }
 
+        .form-inner { padding: 30px; }
+
+        .form-head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .form-head-icon {
+            width: 36px; height: 36px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .form-head-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--ink);
+            letter-spacing: -0.02em;
+        }
+
+        /* ══════════ FORM FIELDS ══════════ */
         .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            gap: 18px;
         }
 
-        .full-width {
-            grid-column: 1 / -1;
-        }
+        .form-group { display: flex; flex-direction: column; gap: 7px; }
+        .full { grid-column: 1 / -1; }
 
         label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #374151;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--ink-soft);
+            letter-spacing: 0.02em;
         }
 
-        input,
+        .input-wrap { position: relative; }
+
+        .input-icon {
+            position: absolute;
+            left: 13px; top: 50%;
+            transform: translateY(-50%);
+            width: 16px; height: 16px;
+            color: #9ab5a6;
+            pointer-events: none;
+        }
+
+        .textarea-icon {
+            position: absolute;
+            left: 13px; top: 13px;
+            width: 16px; height: 16px;
+            color: #9ab5a6;
+            pointer-events: none;
+        }
+
+        input[type="text"],
+        input[type="number"],
         textarea,
         select {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 10px;
+            padding: 11px 14px 11px 40px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            font-family: 'DM Sans', sans-serif;
             font-size: 14px;
-            font-family: Arial, sans-serif;
+            color: var(--ink);
+            background: #fff;
+            outline: none;
+            transition: border-color 0.18s, box-shadow 0.18s;
+            appearance: none;
         }
 
-        textarea {
-            min-height: 100px;
-            resize: vertical;
+        input::placeholder, textarea::placeholder { color: #b0c8bc; }
+
+        input:focus, textarea:focus, select:focus {
+            border-color: var(--green-dark);
+            box-shadow: 0 0 0 4px rgba(26,184,102,0.11);
         }
 
-        .submit-btn {
-            background: #1e3a8a;
-            color: white;
-            border: none;
-            padding: 14px 28px;
-            border-radius: 10px;
-            font-size: 15px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
+        textarea { min-height: 90px; resize: vertical; padding-top: 11px; }
+
+        .select-wrap { position: relative; }
+
+        .select-wrap::after {
+            content: '';
+            position: absolute;
+            right: 14px; top: 50%;
+            transform: translateY(-50%);
+            width: 0; height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 6px solid var(--muted);
+            pointer-events: none;
         }
 
-        .submit-btn:hover {
-            background: #1d4ed8;
+        .form-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 4px;
         }
 
-        /* Exams Section */
-        .section-title {
-            font-size: 28px;
-            color: #1e3a8a;
-            margin-bottom: 25px;
+        /* ══════════ SECTION LABEL ══════════ */
+        .section-label {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 16px;
         }
 
+        /* ══════════ EXAM GRID ══════════ */
         .exam-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 25px;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
         }
 
+        /* ══════════ EXAM CARD ══════════ */
         .exam-card {
-            background: white;
-            padding: 28px;
-            border-radius: 20px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-            transition: 0.3s;
+            background: var(--bg-card);
+            border-radius: 18px;
+            border: 1.5px solid var(--border);
+            box-shadow: 0 3px 16px rgba(0,0,0,0.055);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
+            animation: fadeUp 0.5s cubic-bezier(0.22,1,0.36,1) both;
             position: relative;
         }
 
+        .exam-card:nth-child(1){animation-delay:0.05s}
+        .exam-card:nth-child(2){animation-delay:0.10s}
+        .exam-card:nth-child(3){animation-delay:0.15s}
+        .exam-card:nth-child(4){animation-delay:0.20s}
+        .exam-card:nth-child(5){animation-delay:0.25s}
+        .exam-card:nth-child(6){animation-delay:0.30s}
+
         .exam-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.09);
+            border-color: var(--green-dark);
+        }
+
+        /* Delete button — top right corner */
+        .delete-btn {
+            position: absolute;
+            top: 16px; right: 16px;
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(217,48,37,0.2);
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--error);
+            opacity: 0;
+            transition: opacity 0.18s, background 0.18s, border-color 0.18s, transform 0.14s;
+        }
+
+        .delete-btn svg { width: 15px; height: 15px; }
+
+        .exam-card:hover .delete-btn { opacity: 1; }
+
+        .delete-btn:hover {
+            background: var(--error);
+            border-color: var(--error);
+            color: #fff;
+            transform: scale(1.1);
         }
 
         .course-badge {
-            display: inline-block;
-            background: #dbeafe;
-            color: #1e40af;
-            padding: 6px 14px;
-            border-radius: 999px;
-            font-size: 13px;
-            font-weight: bold;
-            margin-bottom: 15px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: #d0f0e0;
+            color: #0a5c36;
+            border: 1px solid rgba(26,184,102,0.25);
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 600;
+            width: fit-content;
         }
 
         .exam-title {
-            font-size: 22px;
-            font-weight: bold;
-            color: #111827;
-            margin-bottom: 12px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--ink);
+            letter-spacing: -0.02em;
+            line-height: 1.25;
+            padding-right: 30px; /* avoid overlap with delete btn */
         }
 
-        .exam-description {
-            color: #6b7280;
+        .exam-desc {
+            font-size: 13px;
+            color: var(--muted);
             line-height: 1.6;
-            margin-bottom: 20px;
-            min-height: 60px;
+            flex: 1;
         }
 
         .exam-meta {
             display: flex;
-            gap: 20px;
-            font-size: 14px;
-            color: #374151;
-            margin-bottom: 20px;
+            gap: 14px;
             flex-wrap: wrap;
         }
 
-        .manage-btn {
-            display: inline-block;
-            width: 100%;
-            text-align: center;
-            background: #059669;
-            color: white;
-            padding: 12px;
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: bold;
-            transition: 0.3s;
+        .meta-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12.5px;
+            font-weight: 500;
+            color: var(--ink-soft);
+            background: var(--bg);
+            border: 1px solid var(--border);
+            padding: 4px 12px;
+            border-radius: 100px;
         }
+
+        .meta-chip svg { width: 13px; height: 13px; color: var(--green-dark); }
+
+        .card-actions { display: flex; gap: 10px; margin-top: 2px; }
+
+        .manage-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            padding: 10px 16px;
+            background: var(--ink);
+            color: #fff;
+            border-radius: 100px;
+            text-decoration: none;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.14);
+            transition: background 0.18s, transform 0.14s, box-shadow 0.18s;
+        }
+
+        .manage-btn svg { width: 14px; height: 14px; }
 
         .manage-btn:hover {
-            background: #047857;
+            background: #1a1a1a;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.18);
         }
 
-        /* Empty State */
+        /* ══════════ EMPTY STATE ══════════ */
         .empty-state {
-            background: white;
-            padding: 50px;
-            text-align: center;
+            background: var(--bg-card);
+            border: 1.5px dashed var(--border);
             border-radius: 20px;
-            color: #6b7280;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-        }
-
-        /* Footer Links */
-        .footer-links {
-            margin-top: 40px;
+            padding: 60px 24px;
             text-align: center;
+            animation: fadeUp 0.5s cubic-bezier(0.22,1,0.36,1) both;
         }
 
-        .footer-links a {
-            color: #1e3a8a;
-            text-decoration: none;
-            font-weight: bold;
-            margin: 0 10px;
+        .empty-emoji { font-size: 40px; display: block; margin-bottom: 12px; }
+
+        .empty-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 6px;
         }
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .header-top {
-                flex-direction: column;
-                align-items: flex-start;
-            }
+        .empty-sub { font-size: 13.5px; color: var(--muted); }
 
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
+        /* ══════════ DELETE CONFIRM MODAL ══════════ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
 
-            .header h1 {
-                font-size: 28px;
-            }
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            padding: 32px;
+            max-width: 380px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            transform: scale(0.94) translateY(10px);
+            transition: transform 0.25s cubic-bezier(0.22,1,0.36,1);
+        }
+
+        .modal-overlay.open .modal {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-icon {
+            width: 48px; height: 48px;
+            border-radius: 14px;
+            background: var(--error-bg, #fff0ef);
+            border: 1px solid rgba(217,48,37,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .modal-icon svg { width: 24px; height: 24px; color: var(--error); }
+
+        .modal-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .modal-body {
+            font-size: 13.5px;
+            color: var(--muted);
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .modal-actions { display: flex; gap: 10px; }
+
+        .btn-cancel {
+            flex: 1;
+            background: var(--bg);
+            color: var(--ink-soft);
+            border: 1.5px solid var(--border);
+            padding: 11px;
+            border-radius: 100px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 13.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: border-color 0.15s;
+        }
+
+        .btn-cancel:hover { border-color: var(--ink); }
+
+        .btn-confirm-delete {
+            flex: 1;
+            background: var(--error);
+            color: #fff;
+            border: none;
+            padding: 11px;
+            border-radius: 100px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 13.5px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(217,48,37,0.3);
+            transition: background 0.15s, box-shadow 0.15s;
+        }
+
+        .btn-confirm-delete:hover {
+            background: #b91c1c;
+            box-shadow: 0 6px 20px rgba(217,48,37,0.4);
+        }
+
+        @media (max-width: 600px) {
+            nav { padding: 0 18px; gap: 10px; }
+            .page { padding: 28px 16px 60px; }
+            .page-header { flex-direction: column; align-items: flex-start; }
         }
     </style>
-
-    <script>
-        function toggleCreateForm() {
-            const form = document.getElementById("createExamForm");
-
-            if (form.style.display === "none" || form.style.display === "") {
-                form.style.display = "block";
-                form.scrollIntoView({ behavior: "smooth" });
-            } else {
-                form.style.display = "none";
-            }
-        }
-    </script>
 </head>
 <body>
 
-<!-- Header -->
-<div class="header">
-    <div class="header-top">
+<!-- ══════ NAV ══════ -->
+<nav>
+    <a href="/admin/dashboard" class="nav-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        Dashboard
+    </a>
+
+    <a href="/" class="nav-logo" style="margin-left:16px;">Exam<span class="g">Sphere</span></a>
+
+    <div class="nav-pill">
+        <div class="nav-pill-dot"></div>
+        Admin Panel
+    </div>
+
+    <a href="/login" class="nav-logout">Logout</a>
+</nav>
+
+<!-- ══════ PAGE ══════ -->
+<div class="page">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
         <div>
-            <h1>Manage Exams</h1>
-            <p>Create exams and manage questions for each exam.</p>
+            <div class="page-eyebrow">Admin · Exams</div>
+            <div class="page-title">Manage Exams</div>
         </div>
-
-        <a href="javascript:void(0)"
-           class="create-btn"
-           onclick="toggleCreateForm()">
-            + Create Exam
-        </a>
-    </div>
-</div>
-
-<!-- Main Content -->
-<div class="container">
-
-    <!-- Hidden Create Exam Form -->
-    <div class="form-card" id="createExamForm">
-        <h2>Create New Exam</h2>
-
-        <form action="/admin/exams" method="post">
-            <div class="form-grid">
-
-                <div class="full-width">
-                    <label>Select Course</label>
-                    <select name="course" required>
-                        <option value="">-- Select Course --</option>
-                        <option th:each="course : ${courses}"
-                                th:value="${course.courseName}"
-                                th:text="${course.courseName}">
-                        </option>
-                    </select>
-                </div>
-
-                <div class="full-width">
-                    <label>Exam Title</label>
-                    <input type="text" name="title" required>
-                </div>
-
-                <div class="full-width">
-                    <label>Description</label>
-                    <textarea name="description" required></textarea>
-                </div>
-
-                <div>
-                    <label>Duration (Minutes)</label>
-                    <input type="number" name="durationMinutes" required>
-                </div>
-
-                <div>
-                    <label>Total Marks</label>
-                    <input type="number" name="totalMarks" required>
-                </div>
-
-                <div class="full-width">
-                    <button type="submit" class="submit-btn">
-                        Create Exam
-                    </button>
-                </div>
+        <div class="header-actions">
+            <div class="count-badge">
+                <span th:text="${#lists.size(exams)}">0</span> Exams
             </div>
-        </form>
+            <button class="btn btn-primary" onclick="toggleForm()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                Create Exam
+            </button>
+        </div>
     </div>
 
-    <!-- Exams Section -->
-    <h2 class="section-title">Available Exams</h2>
+    <!-- CREATE EXAM PANEL -->
+    <div class="form-panel" id="createPanel">
+        <div class="form-inner">
+            <div class="form-head">
+                <div class="form-head-icon">📝</div>
+                <div class="form-head-title">Create New Exam</div>
+                <button onclick="toggleForm()" style="margin-left:auto;background:none;border:none;cursor:pointer;color:var(--muted);font-size:20px;line-height:1;" title="Close">×</button>
+            </div>
 
-    <!-- Empty State -->
+            <form action="/admin/exams" method="post">
+                <div class="form-grid">
+
+                    <div class="form-group full">
+                        <label for="course">Course</label>
+                        <div class="select-wrap">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                            </svg>
+                            <select id="course" name="course" required>
+                                <option value="">— Select a course —</option>
+                                <option th:each="course : ${courses}"
+                                        th:value="${course.courseName}"
+                                        th:text="${course.courseName}"></option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group full">
+                        <label for="title">Exam Title</label>
+                        <div class="input-wrap">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="9 11 12 14 22 4"/>
+                                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                            </svg>
+                            <input type="text" id="title" name="title" placeholder="e.g. Mid-Term Java Assessment" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group full">
+                        <label for="description">Description</label>
+                        <div class="input-wrap">
+                            <svg class="textarea-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
+                                <line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/>
+                                <line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+                            </svg>
+                            <textarea id="description" name="description" placeholder="Brief overview of what this exam covers…" style="padding-left:40px;" required></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="duration">Duration (Minutes)</label>
+                        <div class="input-wrap">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <polyline points="12 6 12 12 16 14"/>
+                            </svg>
+                            <input type="number" id="duration" name="durationMinutes" placeholder="e.g. 60" required min="1">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="marks">Total Marks</label>
+                        <div class="input-wrap">
+                            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                            </svg>
+                            <input type="number" id="marks" name="totalMarks" placeholder="e.g. 100" required min="1">
+                        </div>
+                    </div>
+
+                    <div class="form-group full">
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                    <line x1="12" y1="5" x2="12" y2="19"/>
+                                    <line x1="5" y1="12" x2="19" y2="12"/>
+                                </svg>
+                                Create Exam
+                            </button>
+                            <button type="reset" class="btn btn-ghost">Clear</button>
+                        </div>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SECTION LABEL -->
+    <div class="section-label">Available Exams</div>
+
+    <!-- EMPTY STATE -->
     <div th:if="${#lists.isEmpty(exams)}" class="empty-state">
-        <h3>No exams created yet</h3>
-        <p>Click the "Create Exam" button to add your first exam.</p>
+        <span class="empty-emoji">🗂️</span>
+        <div class="empty-title">No exams yet</div>
+        <div class="empty-sub">Hit "Create Exam" above to add your first one.</div>
     </div>
 
-    <!-- Exam Cards -->
+    <!-- EXAM CARDS -->
     <div th:if="${!#lists.isEmpty(exams)}" class="exam-grid">
-
         <div class="exam-card" th:each="exam : ${exams}">
-            <div class="course-badge" th:text="${exam.course}"></div>
 
-            <div class="exam-title" th:text="${exam.title}"></div>
+            <!-- Delete trigger -->
+			<button class="delete-btn"
+			        th:data-exam-id="${exam.id}"
+			        th:data-exam-title="${exam.title}"
+			        onclick="openDeleteModal(this)"
+			        title="Delete exam">
+			    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+			        <polyline points="3 6 5 6 21 6"/>
+			        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+			        <path d="M10 11v6M14 11v6"/>
+			        <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+			    </svg>
+			</button>
 
-            <div class="exam-description"
-                 th:text="${exam.description}">
+            <div class="course-badge">
+                📚 <span th:text="${exam.course}">Course</span>
             </div>
+
+            <div class="exam-title" th:text="${exam.title}">Exam Title</div>
+
+            <div class="exam-desc" th:text="${exam.description}">Description</div>
 
             <div class="exam-meta">
-                <span th:text="'⏱ ' + ${exam.durationMinutes} + ' mins'"></span>
-                <span th:text="'🏆 ' + ${exam.totalMarks} + ' marks'"></span>
+                <div class="meta-chip">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                    <span th:text="${exam.durationMinutes} + ' mins'">60 mins</span>
+                </div>
+                <div class="meta-chip">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                    </svg>
+                    <span th:text="${exam.totalMarks} + ' marks'">100 marks</span>
+                </div>
             </div>
 
-            <a th:href="@{'/admin/exams/' + ${exam.id} + '/questions'}"
-               class="manage-btn">
-                Manage Questions
-            </a>
+            <div class="card-actions">
+                <a th:href="@{'/admin/exams/' + ${exam.id} + '/questions'}" class="manage-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg>
+                    Manage Questions
+                </a>
+            </div>
+
         </div>
-
-    </div>
-
-    <!-- Footer -->
-    <div class="footer-links">
-        <a href="/admin-dashboard">Dashboard</a>
-        |
-        <a href="/login">Logout</a>
     </div>
 
 </div>
+
+<!-- ══════ DELETE MODAL ══════ -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal">
+        <div class="modal-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                <path d="M10 11v6M14 11v6"/>
+                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+            </svg>
+        </div>
+        <div class="modal-title">Delete Exam?</div>
+        <div class="modal-body" id="modalBody">
+            This will permanently delete <strong id="examNameDisplay"></strong> and all its questions. This cannot be undone.
+        </div>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeDeleteModal()">Cancel</button>
+            <form id="deleteForm" method="post" style="flex:1;display:flex;">
+                <button type="submit" class="btn-confirm-delete" style="width:100%;">Delete Exam</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ── Form toggle ──
+    function toggleForm() {
+        const panel = document.getElementById('createPanel');
+        panel.classList.toggle('open');
+        if (panel.classList.contains('open')) {
+            panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    }
+
+    // ── Delete modal ──
+	function openDeleteModal(btn) {
+	    const examId    = btn.dataset.examId;
+	    const examTitle = btn.dataset.examTitle;
+	    document.getElementById('examNameDisplay').textContent = examTitle;
+	    document.getElementById('deleteForm').action = '/admin/exams/' + examId + '/delete';
+	    document.getElementById('deleteModal').classList.add('open');
+	}
+
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').classList.remove('open');
+    }
+
+    // Close on backdrop click
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) closeDeleteModal();
+    });
+
+    // Close on Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeDeleteModal();
+    });
+</script>
 
 </body>
 </html>

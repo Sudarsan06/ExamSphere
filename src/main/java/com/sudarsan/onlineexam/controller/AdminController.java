@@ -1,6 +1,7 @@
 package com.sudarsan.onlineexam.controller;
 
-import java.util.List;
+import java.util.List; 
+import jakarta.servlet.http.HttpSession;
 import java.util.Optional;
 
 import org.springframework.stereotype.Controller;
@@ -25,23 +26,47 @@ public class AdminController {
         this.userRepository = userRepository;
     }
 
+    private boolean isAdmin(HttpSession session) {
+
+        User user =
+            (User) session.getAttribute("loggedInUser");
+
+        return user != null
+                && "ADMIN".equalsIgnoreCase(user.getRole());
+    }
+    
     // =========================
     // COURSE MANAGEMENT
     // =========================
 
     @GetMapping("/courses")
-    public String showCourses(Model model) {
+    public String showCourses(
+            HttpSession session,
+            Model model) {
+
+        if (!isAdmin(session)) {
+            return "redirect:/login";
+        }
+
         List<Course> courses = courseRepository.findAll();
         model.addAttribute("courses", courses);
+
         return "manage-courses";
     }
-
+    
     @PostMapping("/courses")
     public String addCourse(
+            HttpSession session,
             @RequestParam String courseName,
             @RequestParam String description) {
 
-        Course course = new Course(courseName, description);
+        if (!isAdmin(session)) {
+            return "redirect:/login";
+        }
+
+        Course course =
+            new Course(courseName, description);
+
         courseRepository.save(course);
 
         return "redirect:/admin/courses";
@@ -52,27 +77,60 @@ public class AdminController {
     // =========================
 
     @GetMapping("/students")
-    public String viewStudents(Model model) {
-        List<User> students = userRepository.findByRole("STUDENT");
+    public String viewStudents(
+            HttpSession session,
+            Model model) {
+
+        if (!isAdmin(session)) {
+            return "redirect:/login";
+        }
+
+        List<User> students =
+            userRepository.findByRole("STUDENT");
+
         model.addAttribute("students", students);
+
         return "view-students";
     }
-
     // =========================
     // REACTIVATE STUDENT ACCOUNT
     // =========================
 
     @PostMapping("/students/reactivate")
-    public String reactivateStudent(@RequestParam Long id) {
+    public String reactivateStudent(
+            HttpSession session,
+            @RequestParam Long id) {
 
-        Optional<User> optionalUser = userRepository.findById(id);
+        if (!isAdmin(session)) {
+            return "redirect:/login";
+        }
+
+        Optional<User> optionalUser =
+            userRepository.findById(id);
 
         if (optionalUser.isPresent()) {
+
             User user = optionalUser.get();
+
             user.setStatus("ACTIVE");
+
             userRepository.save(user);
         }
 
         return "redirect:/admin/students";
     }
+    
+    @GetMapping("/dashboard")
+    public String dashboard(Model model) {
+
+        model.addAttribute("courseCount", courseRepository.count());
+
+        model.addAttribute(
+            "studentCount",
+            userRepository.findByRole("STUDENT").size()
+        );
+
+        return "admin-dashboard";
+    }
+    
 }
