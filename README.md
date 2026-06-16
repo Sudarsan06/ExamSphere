@@ -1,62 +1,71 @@
 # 🎓 ExamSphere
 
-ExamSphere is a web-based online examination platform designed to simplify the process of conducting, managing, and evaluating examinations digitally. 
-The platform provides secure exam management, automated result processing, and performance tracking for students and administrators.
+A full-stack online examination platform built using Spring Boot, SQL Server, Thymeleaf, HTML, CSS, and JavaScript.
+
+ExamSphere enables educational institutions and training organizations to conduct online examinations through a secure, role-based platform with dedicated dashboards for administrators and students.
 
 🌐 Live Demo: https://examsphere-production.up.railway.app/
-
 ---
 
 ## 🚀 Features
 
-### Student Features
-- Secure Login & Registration
-- Browse Available Exams
-- Attempt Online Tests
-- View Scores and Results
-- Track Examination History
+### 👨‍💼 Admin Module
 
-### Admin Features
-- Create and Manage Exams
-- Add, Update, and Delete Questions
-- Manage Students
-- Monitor Exam Activity
-- View Performance Reports
+* Secure Admin Login
+* Create and Manage Exams
+* Add, Edit and Delete Questions
+* View Student Information
+* Manage Exam Records
+* Monitor Exam Activity
+* Delete Exams and Questions
 
-### Examination Features
-- Timed Assessments
-- Automatic Evaluation
-- Real-Time Score Calculation
-- Secure Examination Workflow
-- Result Generation
+### 👨‍🎓 Student Module
+
+* User Registration
+* Email OTP Verification
+* Secure Login
+* View Available Exams
+* Attempt Exams
+* Automatic Score Calculation
+* Exam History Tracking
+* Responsive Dashboard
+
+### 🔒 Security Features
+
+* BCrypt Password Hashing
+* OTP Email Verification
+* Session-Based Authentication
+* Role-Based Access Control
+* Protected Admin Workflows
 
 ---
 
 ## 🛠️ Tech Stack
 
 ### Backend
-- Java
-- Spring Boot
-- Spring MVC
-- Spring Data JPA
-- Spring Security
+
+* Java
+* Spring Boot
+* Spring MVC
+* Spring Data JPA
+* Hibernate
 
 ### Frontend
-- HTML
-- CSS
-- JavaScript
-- Thymeleaf 
+
+* HTML5
+* CSS3
+* JavaScript
+* Thymeleaf
 
 ### Database
-- MySQL
-- Railway Cloud
 
-### Build Tool
-- Maven
+* SQL Server
 
-### Deployment
-- Railway
-- Render
+### Tools
+
+* Git
+* GitHub
+* Maven
 
 ---
 
@@ -64,88 +73,118 @@ The platform provides secure exam management, automated result processing, and p
 
 ```text
 src
-├── main
-│   ├── java
-│   │   └── com.examsphere
-│   │       ├── controller
-│   │       ├── service
-│   │       ├── repository
-│   │       ├── model
-│   │       └── config
-│   └── resources
-│       ├── templates
-│       ├── static
-│       └── application.properties
-└── test
+ ├── controller
+ ├── service
+ ├── repository
+ ├── entity
+ ├── config
+ └── templates
 ```
 
 ---
 
-## ⚙️ Setup Instructions
+## ⚙️ Installation
 
 ### Clone Repository
 
 ```bash
-git clone <your-repository-url>
-cd examsphere
+git clone https://github.com/YOUR_USERNAME/ExamSphere.git
+```
+
+### Navigate to Project
+
+```bash
+cd ExamSphere
 ```
 
 ### Configure Database
 
-Update `application.properties`:
+Update:
 
 ```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/examsphere
-spring.datasource.username=your_username
-spring.datasource.password=your_password
+application.properties
+```
+
+```properties
+spring.datasource.url=jdbc:sqlserver://localhost\\SQLEXPRESS;databaseName=OnlineExamDB
+spring.datasource.username=YOUR_USERNAME
+spring.datasource.password=YOUR_PASSWORD
 ```
 
 ### Run Application
-
-Using Maven:
 
 ```bash
 mvn spring-boot:run
 ```
 
-Or:
+Application starts at:
 
-```bash
-mvn clean install
-java -jar target/examsphere.jar
+```text
+http://localhost:8080
 ```
 
 ---
 
-## 📊 Core Modules
+## 📧 Email Configuration
 
-- Authentication & Authorization
-- Student Management
-- Exam Management
-- Question Management
-- Result Processing
-- Performance Analytics
+ExamSphere uses Gmail SMTP for OTP verification.
 
----
+Configure:
 
-## 🔒 Security Features
-
-- Spring Security Authentication
-- Role-Based Access Control
-- Protected Routes
-- Session Management
-- Secure Password Storage
+```properties
+spring.mail.username=your-email@gmail.com
+spring.mail.password=your-app-password
+```
 
 ---
 
-## 🎯 Future Enhancements
+## 📸 Screenshots
 
-- AI-Based Proctoring
-- Certificate Generation
-- Email Notifications
-- Question Bank Import/Export
-- Multi-Language Support
-- Advanced Analytics Dashboard
+### Landing Page
+
+<img width="1920" height="1080" alt="Screenshot (277)" src="https://github.com/user-attachments/assets/149db3bd-3bbf-42ae-bbd1-6b606fb26e2f" />
+
+### Admin Dashboard
+
+<img width="1920" height="1080" alt="Screenshot (281)" src="https://github.com/user-attachments/assets/2453ef56-cd65-47e3-a896-2420704b3cbb" />
+
+### Manage Courses
+
+<img width="1920" height="1080" alt="Screenshot (282)" src="https://github.com/user-attachments/assets/e4d8b7d4-0f67-4aa7-9883-18c01cb1fa77" />
+
+### Student Dashboard
+
+<img width="1920" height="1080" alt="Screenshot (279)" src="https://github.com/user-attachments/assets/eaba7138-ac80-42bc-b4a4-767c0b7f48d9" />
+
+### Exam Interface
+
+<img width="1920" height="1080" alt="Screenshot (280)" src="https://github.com/user-attachments/assets/e2e57d69-c1f7-41b5-a9f4-153b300f2a2e" />
+
+---
+
+## 🎯 Key Learning Outcomes
+
+* Spring Boot MVC Architecture
+* Authentication & Authorization
+* Session Management
+* OTP-Based Verification
+* BCrypt Password Hashing
+* SQL Database Integration
+* Full-Stack Web Development
+* Responsive UI Design
+
+---
+
+## 🔮 Future Enhancements
+
+* Spring Security Integration
+* JWT Authentication
+* Exam Analytics Dashboard
+* AI-Based Proctoring
+* Leaderboards
+* Certificate Generation
+* Docker Deployment
+* Cloud Hosting
 
 ---
 
@@ -153,10 +192,8 @@ java -jar target/examsphere.jar
 
 **Sudarsan Mahapatro**
 
-- GitHub: https://github.com/Sudarsan06
-- LinkedIn: www.linkedin.com/in/sudarsan-mahapatro
+GitHub:
+https://github.com/Sudarsan06
 
----
-
-
-⭐ If you found this project useful, consider starring the repository.
+LinkedIn:
+https://linkedin.com/in/sudarsan-mahapatro
