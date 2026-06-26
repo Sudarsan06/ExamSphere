@@ -119,15 +119,20 @@ public class AdminController {
 
         return "redirect:/admin/students";
     }
-    
+
     @GetMapping("/dashboard")
-    public String dashboard(Model model) {
+    public String dashboard(HttpSession session,
+                            Model model) {
+
+        if (!isAdmin(session)) {
+            return "redirect:/login";
+        }
 
         model.addAttribute("courseCount", courseRepository.count());
 
         model.addAttribute(
-            "studentCount",
-            userRepository.findByRole("STUDENT").size()
+                "studentCount",
+                userRepository.findByRole("STUDENT").size()
         );
 
         return "admin-dashboard";

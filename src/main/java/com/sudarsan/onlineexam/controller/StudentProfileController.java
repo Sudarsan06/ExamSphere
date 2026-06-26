@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
+import jakarta.servlet.http.HttpSession;
 import com.sudarsan.onlineexam.entity.User;
 import com.sudarsan.onlineexam.repository.UserRepository;
 
@@ -21,49 +21,54 @@ public class StudentProfileController {
     // Show profile page
     @GetMapping("/student/profile")
     public String showProfile(
-            @RequestParam String username,
+            HttpSession session,
             Model model) {
 
-        Optional<User> optionalUser =
-                userRepository.findByUsername(username);
+        User loggedInUser = (User) session.getAttribute("loggedInUser");
 
-        if (optionalUser.isEmpty()) {
+        if (loggedInUser == null ||
+                !"STUDENT".equalsIgnoreCase(loggedInUser.getRole())) {
             return "redirect:/login";
         }
 
-        model.addAttribute("user", optionalUser.get());
+        model.addAttribute("user", loggedInUser);
+
         return "student-profile";
     }
 
     // Save or update profile
     @PostMapping("/student/profile")
     public String saveProfile(
-            @RequestParam Long id,
+            HttpSession session,
             @RequestParam String mobileNumber,
             @RequestParam String hobbies,
             @RequestParam String address,
             @RequestParam(required = false) String dateOfBirth,
             Model model) {
 
-        Optional<User> optionalUser = userRepository.findById(id);
+        User loggedInUser = (User) session.getAttribute("loggedInUser");
 
-        if (optionalUser.isEmpty()) {
+        if (loggedInUser == null ||
+                !"STUDENT".equalsIgnoreCase(loggedInUser.getRole())) {
             return "redirect:/login";
         }
 
-        User user = optionalUser.get();
+        User user = userRepository.findById(loggedInUser.getId()).orElseThrow();
 
         user.setMobileNumber(mobileNumber);
         user.setHobbies(hobbies);
         user.setAddress(address);
 
         if (user.getDateOfBirth() == null &&
-        	    dateOfBirth != null &&
-        	    !dateOfBirth.isBlank()) {
-        	    user.setDateOfBirth(java.time.LocalDate.parse(dateOfBirth));
-        	}
+                dateOfBirth != null &&
+                !dateOfBirth.isBlank()) {
+
+            user.setDateOfBirth(java.time.LocalDate.parse(dateOfBirth));
+        }
 
         userRepository.save(user);
+
+        session.setAttribute("loggedInUser", user);
 
         model.addAttribute("user", user);
         model.addAttribute("success", "Profile updated successfully.");
@@ -73,24 +78,22 @@ public class StudentProfileController {
 
     // Deactivate account
     @PostMapping("/student/deactivate")
-    public String deactivateAccount(
-            @RequestParam Long id,
-            Model model) {
+    public String deactivateAccount(HttpSession session) {
 
-        Optional<User> optionalUser = userRepository.findById(id);
+        User loggedInUser = (User) session.getAttribute("loggedInUser");
 
-        if (optionalUser.isEmpty()) {
+        if (loggedInUser == null ||
+                !"STUDENT".equalsIgnoreCase(loggedInUser.getRole())) {
             return "redirect:/login";
         }
 
-        User user = optionalUser.get();
+        User user = userRepository.findById(loggedInUser.getId()).orElseThrow();
+
         user.setStatus("INACTIVE");
         userRepository.save(user);
 
-        model.addAttribute("course", user.getCourse());
-        model.addAttribute("username", user.getUsername());
-        model.addAttribute("status", user.getStatus());
+        session.invalidate();
 
-        return "student-dashboard";
+        return "redirect:/login";
     }
 }

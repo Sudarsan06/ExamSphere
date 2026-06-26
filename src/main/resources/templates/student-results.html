@@ -2,96 +2,399 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>My Results</title>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --ink: #0a0a0f;
+            --off-white: #f5f4ef;
+            --green: #00c67a;
+            --green-dim: #00c67a22;
+            --green-mid: #00c67a55;
+            --muted: #888898;
+            --border: #e2e1db;
+            --border-dark: #2a2a38;
+            --radius: 18px;
+        }
+
+        *, *::before, *::after {
+            margin: 0; padding: 0; box-sizing: border-box;
+        }
 
         body {
-            margin: 0;
-            font-family: Arial;
-            background: #f3f4f6;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--off-white);
+            color: var(--ink);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
         }
 
-        .header {
-            background: #1e3a8a;
-            color: white;
-            padding: 30px;
-            text-align: center;
+        /* ─── NOISE OVERLAY ─── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.4;
         }
 
-        .container {
-            max-width: 1100px;
-            margin: 40px auto;
-            padding: 0 20px;
+        /* ─── GLOW ─── */
+        body::after {
+            content: '';
+            position: fixed;
+            top: -200px;
+            right: -200px;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--green-mid) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+            animation: pulse-glow 6s ease-in-out infinite alternate;
         }
 
+        @keyframes pulse-glow {
+            from { transform: scale(0.9); opacity: 0.4; }
+            to   { transform: scale(1.1); opacity: 0.9; }
+        }
+
+        /* ─── NAVBAR ─── */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 72px;
+            background: rgba(245,244,239,0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-family: 'Syne', sans-serif;
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--ink);
+            letter-spacing: -0.5px;
+            text-decoration: none;
+        }
+
+        .logo span { color: var(--green); }
+
+        /* ─── MAIN ─── */
+        .main {
+            flex: 1;
+            padding: 56px 72px;
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        /* ─── PAGE HEADER ─── */
+        .page-header {
+            margin-bottom: 40px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--green);
+            background: var(--green-dim);
+            border: 1px solid var(--green-mid);
+            padding: 6px 14px;
+            border-radius: 100px;
+            margin-bottom: 16px;
+        }
+
+        .badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--green);
+            animation: blink 1.5s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0.2; }
+        }
+
+        .page-header h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(32px, 4vw, 48px);
+            font-weight: 800;
+            letter-spacing: -2px;
+            line-height: 1;
+            color: var(--ink);
+        }
+
+        .page-header p {
+            font-size: 15px;
+            color: var(--muted);
+            font-weight: 300;
+            margin-top: 10px;
+        }
+
+        /* ─── CARD ─── */
         .card {
             background: white;
-            padding: 25px;
-            border-radius: 16px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.05);
+            position: relative;
         }
 
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: var(--green);
+        }
+
+        /* ─── TABLE ─── */
         table {
             width: 100%;
             border-collapse: collapse;
         }
 
-        th, td {
-            padding: 16px;
-            border-bottom: 1px solid #e5e7eb;
-            text-align: left;
+        thead tr {
+            background: var(--off-white);
+            border-bottom: 1px solid var(--border);
         }
 
         th {
-            background: #f9fafb;
+            padding: 16px 28px;
+            font-family: 'Syne', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--muted);
+            text-align: left;
         }
 
-    </style>
+        td {
+            padding: 20px 28px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+            font-weight: 400;
+            color: var(--ink);
+            vertical-align: middle;
+        }
 
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        tbody tr {
+            transition: background 0.15s;
+        }
+
+        tbody tr:hover {
+            background: var(--off-white);
+        }
+
+        /* ─── EXAM TITLE ─── */
+        .exam-title {
+            font-weight: 500;
+            font-size: 15px;
+        }
+
+        /* ─── SCORE PILL ─── */
+        .score-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: var(--green-dim);
+            border: 1px solid var(--green-mid);
+            border-radius: 100px;
+            padding: 5px 14px;
+            font-family: 'Syne', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--ink);
+        }
+
+        .score-pill .score-val {
+            color: var(--green);
+        }
+
+        .score-pill .score-sep {
+            color: var(--muted);
+            font-weight: 400;
+        }
+
+        /* ─── DATE ─── */
+        .date-cell {
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 300;
+        }
+
+        /* ─── EMPTY STATE ─── */
+        .empty-state {
+            padding: 64px 28px;
+            text-align: center;
+        }
+
+        .empty-state .empty-icon {
+            font-size: 40px;
+            margin-bottom: 16px;
+        }
+
+        .empty-state h3 {
+            font-family: 'Syne', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            color: var(--muted);
+            font-weight: 300;
+        }
+
+        /* ─── FOOTER ─── */
+        footer {
+            background: var(--ink);
+            border-top: 1px solid var(--border-dark);
+            padding: 24px 72px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 1;
+        }
+
+        footer .logo { color: white; }
+        footer p { color: #333344; font-size: 13px; }
+
+        /* ─── MOBILE ─── */
+        @media (max-width: 768px) {
+            .navbar { padding: 16px 18px; }
+
+            .main {
+                padding: 40px 16px;
+            }
+
+            /* Scrollable table wrapper on mobile */
+            .table-scroll {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            table {
+                min-width: 480px;
+            }
+
+            th, td {
+                padding: 14px 18px;
+            }
+
+            .page-header h1 {
+                font-size: 32px;
+                letter-spacing: -1px;
+            }
+
+            footer {
+                padding: 20px 18px;
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+        }
+    </style>
 </head>
 <body>
 
-<div class="header">
-    <h1>My Results</h1>
-</div>
+<!-- NAVBAR -->
+<nav class="navbar">
+    <a href="/" class="logo">Exam<span>Sphere</span></a>
+</nav>
 
-<div class="container">
+<!-- MAIN -->
+<div class="main">
 
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+        <div class="badge">Dashboard</div>
+        <h1>My Results</h1>
+        <p>A complete record of all your submitted exams.</p>
+    </div>
+
+    <!-- TABLE CARD -->
     <div class="card">
-
-        <table>
-
-            <thead>
+        <div class="table-scroll">
+            <table>
+                <thead>
                 <tr>
                     <th>Exam</th>
                     <th>Score</th>
                     <th>Date</th>
                 </tr>
-            </thead>
+                </thead>
+                <tbody>
 
-            <tbody>
-
+                <!-- Thymeleaf rows -->
                 <tr th:each="result : ${results}">
-
-                    <td th:text="${result.examTitle}"></td>
-
                     <td>
-                        <span th:text="${result.score}"></span>
-                        /
-                        <span th:text="${result.totalMarks}"></span>
+                        <span class="exam-title" th:text="${result.examTitle}"></span>
                     </td>
-
-                    <td th:text="${result.submittedAt}"></td>
-
+                    <td>
+              <span class="score-pill">
+                <span class="score-val" th:text="${result.score}"></span>
+                <span class="score-sep">/</span>
+                <span th:text="${result.totalMarks}"></span>
+              </span>
+                    </td>
+                    <td>
+                        <span class="date-cell" th:text="${result.submittedAt}"></span>
+                    </td>
                 </tr>
 
-            </tbody>
+                <!-- Empty state — shown when results list is empty -->
+                <tr th:if="${#lists.isEmpty(results)}">
+                    <td colspan="3">
+                        <div class="empty-state">
+                            <div class="empty-icon">📋</div>
+                            <h3>No results yet</h3>
+                            <p>You haven't submitted any exams. Results will appear here once you do.</p>
+                        </div>
+                    </td>
+                </tr>
 
-        </table>
-
+                </tbody>
+            </table>
+        </div>
     </div>
 
 </div>
+
+<!-- FOOTER -->
+<footer>
+    <div class="logo">Exam<span>Sphere</span></div>
+    <p>© 2026 ExamSphere. All Rights Reserved.</p>
+</footer>
 
 </body>
 </html>

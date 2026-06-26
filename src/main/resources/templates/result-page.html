@@ -2,68 +2,329 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Exam Result</title>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --ink: #0a0a0f;
+            --off-white: #f5f4ef;
+            --green: #00c67a;
+            --green-dim: #00c67a22;
+            --green-mid: #00c67a55;
+            --muted: #888898;
+            --border: #e2e1db;
+            --border-dark: #2a2a38;
+            --radius: 18px;
+        }
+
+        *, *::before, *::after {
+            margin: 0; padding: 0; box-sizing: border-box;
+        }
 
         body {
-            margin: 0;
-            font-family: Arial;
-            background: #f3f4f6;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--off-white);
+            color: var(--ink);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
         }
 
-        .container {
-            max-width: 700px;
-            margin: 100px auto;
-            background: white;
-            padding: 50px;
-            border-radius: 20px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        /* ─── NOISE OVERLAY ─── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.4;
         }
 
-        h1 {
-            color: #059669;
+        /* ─── GLOW BG ─── */
+        body::after {
+            content: '';
+            position: fixed;
+            top: -200px;
+            right: -200px;
+            width: 700px;
+            height: 700px;
+            background: radial-gradient(circle, var(--green-mid) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+            animation: pulse-glow 6s ease-in-out infinite alternate;
         }
 
-        .score {
-            font-size: 70px;
-            font-weight: bold;
-            margin: 30px 0;
-            color: #1e3a8a;
+        @keyframes pulse-glow {
+            from { transform: scale(0.9); opacity: 0.4; }
+            to   { transform: scale(1.1); opacity: 0.9; }
         }
 
-        .btn {
-            display: inline-block;
-            padding: 14px 30px;
-            background: #059669;
-            color: white;
-            border-radius: 10px;
+        /* ─── NAVBAR ─── */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 72px;
+            background: rgba(245,244,239,0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-family: 'Syne', sans-serif;
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--ink);
+            letter-spacing: -0.5px;
             text-decoration: none;
-            font-weight: bold;
         }
 
-    </style>
+        .logo span { color: var(--green); }
 
+        /* ─── MAIN ─── */
+        .main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ─── CARD ─── */
+        .card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 56px 52px;
+            max-width: 560px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.06);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* green top accent bar */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: var(--green);
+        }
+
+        /* ─── BADGE ─── */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--green);
+            background: var(--green-dim);
+            border: 1px solid var(--green-mid);
+            padding: 6px 14px;
+            border-radius: 100px;
+            margin-bottom: 28px;
+        }
+
+        .badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--green);
+            animation: blink 1.5s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.2; }
+        }
+
+        /* ─── HEADING ─── */
+        .card h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .card .subtitle {
+            font-size: 14px;
+            color: var(--muted);
+            font-weight: 300;
+            margin-bottom: 40px;
+        }
+
+        /* ─── SCORE DISPLAY ─── */
+        .score-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .score-number {
+            font-family: 'Syne', sans-serif;
+            font-size: 80px;
+            font-weight: 800;
+            letter-spacing: -4px;
+            line-height: 1;
+            color: var(--ink);
+        }
+
+        .score-number.green {
+            color: var(--green);
+        }
+
+        .score-sep {
+            font-family: 'Syne', sans-serif;
+            font-size: 48px;
+            font-weight: 300;
+            color: var(--border);
+            line-height: 1;
+            margin-top: 8px;
+        }
+
+        .score-label {
+            font-size: 13px;
+            color: var(--muted);
+            font-weight: 300;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 36px;
+        }
+
+        /* ─── DIVIDER ─── */
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 0 0 36px;
+        }
+
+        /* ─── BUTTON ─── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--ink);
+            color: var(--off-white);
+            padding: 16px 32px;
+            border-radius: 100px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 15px;
+            font-family: 'DM Sans', sans-serif;
+            transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn::after {
+            content: '→';
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--green);
+            color: var(--ink);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0,198,122,0.25);
+        }
+
+        .btn:hover::after {
+            transform: translateX(4px);
+        }
+
+        /* ─── FOOTER ─── */
+        footer {
+            background: var(--ink);
+            border-top: 1px solid var(--border-dark);
+            padding: 24px 72px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 1;
+        }
+
+        footer .logo { color: white; }
+        footer p { color: #333344; font-size: 13px; }
+
+        /* ─── MOBILE ─── */
+        @media (max-width: 768px) {
+            .navbar { padding: 16px 18px; }
+            .main   { padding: 40px 16px; }
+
+            .card {
+                padding: 40px 28px;
+                border-radius: 20px;
+            }
+
+            .score-number { font-size: 64px; letter-spacing: -3px; }
+            .score-sep    { font-size: 36px; }
+
+            .card h1 { font-size: 22px; }
+
+            footer {
+                padding: 20px 18px;
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+
+            .btn { width: 100%; justify-content: center; }
+        }
+    </style>
 </head>
 <body>
 
-<div class="container">
+<!-- NAVBAR -->
+<nav class="navbar">
+    <a href="/" class="logo">Exam<span>Sphere</span></a>
+</nav>
 
-    <h1>Exam Submitted Successfully</h1>
+<!-- MAIN -->
+<div class="main">
+    <div class="card">
 
-    <p>Your Score</p>
+        <div class="badge">Result</div>
 
-    <div class="score">
-        <span th:text="${score}"></span>
-        /
-        <span th:text="${totalMarks}"></span>
+        <h1>Exam Submitted Successfully</h1>
+        <p class="subtitle">Your responses have been recorded and evaluated.</p>
+
+        <div class="score-wrap">
+            <div class="score-number green" th:text="${score}">--</div>
+            <div class="score-sep">/</div>
+            <div class="score-number" th:text="${totalMarks}">--</div>
+        </div>
+        <p class="score-label">Your Score</p>
+
+        <div class="divider"></div>
+
+        <a href="/login" class="btn">Logout</a>
+
     </div>
-
-    <a href="/login" class="btn">
-        Logout
-    </a>
-
 </div>
+
+<!-- FOOTER -->
+<footer>
+    <div class="logo">Exam<span>Sphere</span></div>
+    <p>© 2026 ExamSphere. All Rights Reserved.</p>
+</footer>
 
 </body>
 </html>
